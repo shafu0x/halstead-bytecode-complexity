@@ -149,11 +149,9 @@ fn byte_to_opcode(byte: &String) -> Opcode {
 }
 
 fn main() {
-    // get path to file from command line
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
-    // remove first two chars from contents
     let contents = &contents[2..];
     println!("File contents:\n{}", contents);
 
