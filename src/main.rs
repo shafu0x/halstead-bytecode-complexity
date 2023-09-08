@@ -172,7 +172,6 @@ fn main() {
         if opcode.operand_size > 0 { 
             let mut data: String = content_chars[i..=i+(opcode.operand_size*2)-1].iter().collect();
             opcode.data = data;
-            // println!("DATA: {}", data);
             i += opcode.operand_size*2;
             opcode.operand_size = 0;
         } else {
@@ -185,6 +184,9 @@ fn main() {
         }
 
         if (opcode.has_data && opcode.data != "") {
+            println!("{}", opcode);
+        }
+        if (!opcode.has_data) {
             println!("{}", opcode);
         }
     }
