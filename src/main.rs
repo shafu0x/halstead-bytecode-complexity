@@ -159,7 +159,7 @@ fn main() {
     let path = &args[1];
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
     let contents = &contents[2..];
-    println!("File contents:\n{}", contents);
+    println!("Bytecode: {}", contents);
 
     let mut i = 0;
 
@@ -172,9 +172,9 @@ fn main() {
 
     i += 2;
 
-    while i < content_chars.len() {
+    while i < content_chars.len()-1 {
         if opcode.operand_size > 0 {
-            let mut data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
+            let data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
                 .iter()
                 .collect();
             opcode.data = data;
@@ -189,10 +189,10 @@ fn main() {
             i += 2;
         }
 
-        if (opcode.has_data && opcode.data != "") {
+        if opcode.has_data && opcode.data != "" {
             println!("{}", opcode);
         }
-        if (!opcode.has_data) {
+        if !opcode.has_data {
             println!("{}", opcode);
         }
     }
