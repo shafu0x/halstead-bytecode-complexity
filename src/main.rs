@@ -27,7 +27,7 @@ impl Opcode {
 
 impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {:<5} {}", self.byte, self.name, self.data)
+        write!(f, "{:<5} {}", self.name, self.data)
     }
 }
 
@@ -37,7 +37,6 @@ fn byte_to_push(opcode: &mut Opcode) -> &mut Opcode {
     opcode.operand_size = pushes;
     opcode.name = "PUSH".to_owned() + &pushes.to_string();
     opcode.has_data = true;
-    opcode.stack_input_size = 1;
     opcode
 }
 
@@ -354,6 +353,9 @@ fn main() {
 
     i += 2;
 
+    let mut number_of_operations = 1;
+    let mut number_of_operands = opcode.stack_input_size;
+
     while i < content_chars.len()-1 {
         if opcode.operand_size > 0 {
             let data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
@@ -363,11 +365,13 @@ fn main() {
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
         } else {
+            number_of_operations += 1;
             let mut opcode_string = String::new();
             opcode_string.push(content_chars[i]);
             opcode_string.push(content_chars[i + 1]);
 
             opcode = byte_to_opcode(&opcode_string);
+            number_of_operands += opcode.stack_input_size;
             i += 2;
         }
 
@@ -378,4 +382,7 @@ fn main() {
             println!("{}", opcode);
         }
     }
+
+    println!("Number of operations: {}", number_of_operations);
+    println!("Number of operands: {}", number_of_operands);
 }
