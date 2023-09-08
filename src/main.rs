@@ -43,7 +43,6 @@ fn byte_to_dup(opcode: &mut Opcode) -> &mut Opcode {
     let dups = dec - 0x7F;
     opcode.operand_size = dups;
     opcode.name = "DUP".to_owned() + &dups.to_string();
-    opcode.has_data = true;
     opcode
 }
 
@@ -52,7 +51,6 @@ fn byte_to_swap(opcode: &mut Opcode) -> &mut Opcode {
     let swaps = dec - 0x8F;
     opcode.operand_size = swaps;
     opcode.name = "SWAP".to_owned() + &swaps.to_string();
-    opcode.has_data = true;
     opcode
 }
 
@@ -154,12 +152,19 @@ fn byte_to_opcode(byte: &String) -> Opcode {
     opcode
 }
 
-fn main() {
+fn read_file() -> String {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
-    // remove 0x
-    let contents = &contents[2..];
+    if &contents[0..2] == "0x" { 
+        return contents[2..].to_string();
+    } else {
+        return contents.to_string();
+    }
+}
+
+fn main() {
+    let contents = read_file();
     println!("Bytecode: {}", contents);
 
     let mut i = 0;
