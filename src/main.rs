@@ -7,17 +7,19 @@ struct Opcode {
     byte: String, 
     name: String, 
     operand_size: usize, // in bytes
+    data: String, 
+    has_data: bool,
 }
 
 impl Opcode {
     fn new(byte: String) -> Opcode {
-        Opcode { byte, name: "NOP".to_string(), operand_size: 0 }
+        Opcode { byte, name: "NOP".to_string(), operand_size: 0, data: "".to_string(), has_data: false }
     }
 }
 
 impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} {:<10} {}", self.byte, self.name, self.operand_size)
+        write!(f, "{} {:<5} {}", self.byte, self.name, self.data)
     }
 }
 
@@ -26,6 +28,7 @@ fn byte_to_push(opcode: &mut Opcode) -> &mut Opcode {
     let pushes = dec - 0x5F;
     opcode.operand_size = pushes;
     opcode.name = "PUSH".to_owned() + &pushes.to_string();
+    opcode.has_data = true;
     opcode
 }
 
@@ -34,6 +37,7 @@ fn byte_to_dup(opcode: &mut Opcode) -> &mut Opcode {
     let dups = dec - 0x7F;
     opcode.operand_size = dups;
     opcode.name = "DUP".to_owned() + &dups.to_string();
+    opcode.has_data = true;
     opcode
 }
 
@@ -42,6 +46,7 @@ fn byte_to_swap(opcode: &mut Opcode) -> &mut Opcode {
     let swaps = dec - 0x8F;
     opcode.operand_size = swaps;
     opcode.name = "SWAP".to_owned() + &swaps.to_string();
+    opcode.has_data = true;
     opcode
 }
 
@@ -153,14 +158,34 @@ fn main() {
     println!("File contents:\n{}", contents);
 
     let mut i = 0;
-    let content_chars: Vec<char> = contents.chars().collect();
-    while i < content_chars.len() {
-        let mut s = String::new();
-        s.push(content_chars[i]);
-        s.push(content_chars[i+1]);
-        i += 2;
 
-        let opcode = byte_to_opcode(&s);
-        println!("{}", opcode);
+    let content_chars: Vec<char> = contents.chars().collect();
+
+    let mut s = String::new();
+    s.push(content_chars[i]);
+    s.push(content_chars[i+1]);
+    let mut opcode = byte_to_opcode(&s);
+
+    i += 2;
+
+    while i < content_chars.len() {
+        if opcode.operand_size > 0 { 
+            let mut data: String = content_chars[i..=i+(opcode.operand_size*2)-1].iter().collect();
+            opcode.data = data;
+            // println!("DATA: {}", data);
+            i += opcode.operand_size*2;
+            opcode.operand_size = 0;
+        } else {
+            let mut ss = String::new();
+            ss.push(content_chars[i]);
+            ss.push(content_chars[i+1]);
+
+            opcode = byte_to_opcode(&ss);
+            i += 2;
+        }
+
+        if (opcode.has_data && opcode.data != "") {
+            println!("{}", opcode);
+        }
     }
 }
