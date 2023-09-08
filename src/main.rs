@@ -158,6 +158,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
+    // remove 0x
     let contents = &contents[2..];
     println!("Bytecode: {}", contents);
 
@@ -165,10 +166,10 @@ fn main() {
 
     let content_chars: Vec<char> = contents.chars().collect();
 
-    let mut s = String::new();
-    s.push(content_chars[i]);
-    s.push(content_chars[i + 1]);
-    let mut opcode = byte_to_opcode(&s);
+    let mut first_opcode = String::new();
+    first_opcode.push(content_chars[i]);
+    first_opcode.push(content_chars[i + 1]);
+    let mut opcode = byte_to_opcode(&first_opcode);
 
     i += 2;
 
@@ -181,11 +182,11 @@ fn main() {
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
         } else {
-            let mut ss = String::new();
-            ss.push(content_chars[i]);
-            ss.push(content_chars[i + 1]);
+            let mut opcode_string = String::new();
+            opcode_string.push(content_chars[i]);
+            opcode_string.push(content_chars[i + 1]);
 
-            opcode = byte_to_opcode(&ss);
+            opcode = byte_to_opcode(&opcode_string);
             i += 2;
         }
 
