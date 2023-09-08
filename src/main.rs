@@ -1,19 +1,25 @@
-use std::fs;
 use std::env;
 use std::fmt;
+use std::fs;
 
 #[derive(Debug)]
 struct Opcode {
-    byte: String, 
-    name: String, 
+    byte: String,
+    name: String,
     operand_size: usize, // in bytes
-    data: String, 
+    data: String,
     has_data: bool,
 }
 
 impl Opcode {
     fn new(byte: String) -> Opcode {
-        Opcode { byte, name: "NOP".to_string(), operand_size: 0, data: "".to_string(), has_data: false }
+        Opcode {
+            byte,
+            name: "NOP".to_string(),
+            operand_size: 0,
+            data: "".to_string(),
+            has_data: false,
+        }
     }
 }
 
@@ -136,7 +142,7 @@ fn byte_to_opcode(byte: &String) -> Opcode {
             let dec = usize::from_str_radix(&s, 16).unwrap();
             if dec >= 0x5F && dec <= 0x7F {
                 byte_to_push(&mut opcode);
-            } 
+            }
             if dec >= 0x80 && dec <= 0x8F {
                 byte_to_dup(&mut opcode);
             }
@@ -161,21 +167,23 @@ fn main() {
 
     let mut s = String::new();
     s.push(content_chars[i]);
-    s.push(content_chars[i+1]);
+    s.push(content_chars[i + 1]);
     let mut opcode = byte_to_opcode(&s);
 
     i += 2;
 
     while i < content_chars.len() {
-        if opcode.operand_size > 0 { 
-            let mut data: String = content_chars[i..=i+(opcode.operand_size*2)-1].iter().collect();
+        if opcode.operand_size > 0 {
+            let mut data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
+                .iter()
+                .collect();
             opcode.data = data;
-            i += opcode.operand_size*2;
+            i += opcode.operand_size * 2;
             opcode.operand_size = 0;
         } else {
             let mut ss = String::new();
             ss.push(content_chars[i]);
-            ss.push(content_chars[i+1]);
+            ss.push(content_chars[i + 1]);
 
             opcode = byte_to_opcode(&ss);
             i += 2;
