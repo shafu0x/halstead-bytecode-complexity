@@ -365,12 +365,14 @@ fn main() {
     let mut number_of_operands = opcode.stack_input_size;
 
     let mut opcodes: Vec<Opcode> = Vec::new();
+    let mut operands: Vec<String> = Vec::new();
 
     while i < content_chars.len()-1 {
         if opcode.operand_size > 0 {
             let data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
                 .iter()
                 .collect();
+            operands.push(data.clone());
             opcode.data = data;
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
@@ -394,17 +396,34 @@ fn main() {
         opcodes.push(opcode.clone());
     }
 
+    println!();
     println!("Number of operations: {}", number_of_operations);
     println!("Number of operands: {}", number_of_operands);
 
-    // let mut unique_opcodes = HashSet::new();
+    let unique_opcodes = get_number_of_unique_opcodes(&opcodes);
+    println!("Number of unique opcodes: {}", unique_opcodes);
 
-    // for opcode in opcodes {
-    //     unique_opcodes.insert(opcode.name);
-    // }
-    // let count = unique_opcodes.len();
-    // println!("Number of unique elements: {}", count);
+    let mut unique_operands = HashSet::new();
+    for op in operands {
+        unique_operands.insert(op);
+    }
+    println!("Number of unique operands: {}", unique_operands.len());
 
-    let count = get_number_of_unique_opcodes(&opcodes);
-    println!("Number of unique elements: {}", count);
+    let vocabulary = unique_opcodes + unique_operands.len();
+    println!("Vocabulary: {}", vocabulary);
+
+    let length = number_of_operations + number_of_operands;
+    println!("Length: {}", length);
+
+    let estimated_program_length = (unique_operands.len() as f64) * (unique_operands.len() as f64).log2() + (unique_opcodes as f64) * (unique_opcodes as f64).log2();
+    println!("Estimated program length: {}", estimated_program_length);
+
+    let volume = length as f64 * (vocabulary as f64).log2();
+    println!("Volume: {}", volume);
+
+    let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands.len() as f64);
+    println!("Difficulty: {}", difficulty);
+
+    let effort = difficulty * volume;
+    println!("Effort: {}", effort);
 }
