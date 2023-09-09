@@ -95,14 +95,14 @@ fn main() {
     println!("Length: {}", length);
 
     let estimated_program_length = (unique_operands.len() as f64) * (unique_operands.len() as f64).log2() + (unique_opcodes as f64) * (unique_opcodes as f64).log2();
-    println!("Estimated program length: {}", estimated_program_length);
+    println!("Estimated program length: {:.2}", estimated_program_length);
 
     let volume = length as f64 * (vocabulary as f64).log2();
-    println!("Volume: {}", volume);
+    println!("Volume: {:.2}", volume);
 
     let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands.len() as f64);
-    println!("Difficulty: {}", difficulty);
+    println!("Difficulty: {:.2}", difficulty);
 
     let effort = difficulty * volume;
-    println!("Effort: {}", effort);
+    println!("Effort: {:.2}", effort);
 }
