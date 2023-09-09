@@ -27,7 +27,6 @@ fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
 
 fn main() {
     let contents = read_file();
-    // println!("Bytecode: {}", contents);
 
     let mut i = 0;
 
@@ -52,7 +51,7 @@ fn main() {
                 .iter()
                 .collect();
             operands.push(data.clone());
-            opcode.data = data;
+            opcode.operand = data;
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
         } else {
@@ -66,43 +65,35 @@ fn main() {
             i += 2;
         }
 
-        if opcode.has_data && opcode.data != "" {
+        if opcode.has_operand && opcode.operand != "" {
             println!("{}", opcode);
         }
-        if !opcode.has_data {
+        if !opcode.has_operand {
             println!("{}", opcode);
         }
         opcodes.push(opcode.clone());
     }
 
     println!();
-    println!("Number of operations: {}", number_of_operations);
-    println!("Number of operands: {}", number_of_operands);
-
     let unique_opcodes = get_number_of_unique_opcodes(&opcodes);
-    println!("Number of unique opcodes: {}", unique_opcodes);
 
     let mut unique_operands = HashSet::new();
     for op in operands {
         unique_operands.insert(op);
     }
-    println!("Number of unique operands: {}", unique_operands.len());
 
     let vocabulary = unique_opcodes + unique_operands.len();
     println!("Vocabulary: {}", vocabulary);
 
     let length = number_of_operations + number_of_operands;
-    println!("Length: {}", length);
-
-    let estimated_program_length = (unique_operands.len() as f64) * (unique_operands.len() as f64).log2() + (unique_opcodes as f64) * (unique_opcodes as f64).log2();
-    println!("Estimated program length: {:.2}", estimated_program_length);
+    println!("Length:     {}", length);
 
     let volume = length as f64 * (vocabulary as f64).log2();
-    println!("Volume: {:.2}", volume);
+    println!("Volume:     {:.2}", volume);
 
     let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands.len() as f64);
     println!("Difficulty: {:.2}", difficulty);
 
     let effort = difficulty * volume;
-    println!("Effort: {:.2}", effort);
+    println!("Effort:     {:.2}", effort);
 }

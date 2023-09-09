@@ -4,28 +4,28 @@ use std::fmt;
 pub struct Opcode {
     pub byte: String,
     pub name: String,
+    pub operand: String,
     pub operand_size: usize, // in bytes
-    pub data: String,
-    pub has_data: bool,
+    pub has_operand: bool,
     pub stack_input_size: usize, 
 }
 
 impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:<5} {}", self.name, self.data)
+        write!(f, "{:<5} {}", self.name, self.operand)
     }
 }
 
-fn byte_to_push(opcode: &mut Opcode) -> &mut Opcode {
+fn to_push(opcode: &mut Opcode) -> &mut Opcode {
     let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
     let pushes = dec - 0x5F;
     opcode.operand_size = pushes;
     opcode.name = "PUSH".to_owned() + &pushes.to_string();
-    opcode.has_data = true;
+    opcode.has_operand = true;
     opcode
 }
 
-fn byte_to_dup(opcode: &mut Opcode) -> &mut Opcode {
+fn to_dup(opcode: &mut Opcode) -> &mut Opcode {
     let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
     let dups = dec - 0x7F;
     opcode.name = "DUP".to_owned() + &dups.to_string();
@@ -33,7 +33,7 @@ fn byte_to_dup(opcode: &mut Opcode) -> &mut Opcode {
     opcode
 }
 
-fn byte_to_swap(opcode: &mut Opcode) -> &mut Opcode {
+fn to_swap(opcode: &mut Opcode) -> &mut Opcode {
     let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
     let swaps = dec - 0x8F;
     opcode.name = "SWAP".to_owned() + &swaps.to_string();
@@ -47,8 +47,8 @@ impl Opcode {
             byte,
             name: "NOP".to_string(),
             operand_size: 0,
-            data: "".to_string(),
-            has_data: false,
+            operand: "".to_string(),
+            has_operand: false,
             stack_input_size: 0,
         }
     }
@@ -309,13 +309,13 @@ impl Opcode {
             s => {
                 let dec = usize::from_str_radix(&s, 16).unwrap();
                 if dec >= 0x5F && dec <= 0x7F {
-                    byte_to_push(&mut opcode);
+                    to_push(&mut opcode);
                 }
                 if dec >= 0x80 && dec <= 0x8F {
-                    byte_to_dup(&mut opcode);
+                    to_dup(&mut opcode);
                 }
                 if dec >= 0x90 && dec <= 0x9F {
-                    byte_to_swap(&mut opcode);
+                    to_swap(&mut opcode);
                 }
             }
         }
