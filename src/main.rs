@@ -1,8 +1,9 @@
 use std::env;
 use std::fmt;
 use std::fs;
+use std::collections::HashSet;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct Opcode {
     byte: String,
     name: String,
@@ -338,6 +339,16 @@ fn read_file() -> String {
     }
 }
 
+fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
+    let mut unique_opcodes = HashSet::new();
+
+    for opcode in opcodes {
+        unique_opcodes.insert(&opcode.name);
+    }
+    let count = unique_opcodes.len();
+    count
+}
+
 fn main() {
     let contents = read_file();
     println!("Bytecode: {}", contents);
@@ -355,6 +366,8 @@ fn main() {
 
     let mut number_of_operations = 1;
     let mut number_of_operands = opcode.stack_input_size;
+
+    let mut opcodes: Vec<Opcode> = Vec::new();
 
     while i < content_chars.len()-1 {
         if opcode.operand_size > 0 {
@@ -381,8 +394,20 @@ fn main() {
         if !opcode.has_data {
             println!("{}", opcode);
         }
+        opcodes.push(opcode.clone());
     }
 
     println!("Number of operations: {}", number_of_operations);
     println!("Number of operands: {}", number_of_operands);
+
+    // let mut unique_opcodes = HashSet::new();
+
+    // for opcode in opcodes {
+    //     unique_opcodes.insert(opcode.name);
+    // }
+    // let count = unique_opcodes.len();
+    // println!("Number of unique elements: {}", count);
+
+    let count = get_number_of_unique_opcodes(&opcodes);
+    println!("Number of unique elements: {}", count);
 }
