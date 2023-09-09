@@ -1,36 +1,9 @@
 use std::env;
-use std::fmt;
 use std::fs;
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct Opcode {
-    byte: String,
-    name: String,
-    operand_size: usize, // in bytes
-    data: String,
-    has_data: bool,
-    stack_input_size: usize, 
-}
-
-impl Opcode {
-    fn new(byte: String) -> Opcode {
-        Opcode {
-            byte,
-            name: "NOP".to_string(),
-            operand_size: 0,
-            data: "".to_string(),
-            has_data: false,
-            stack_input_size: 0,
-        }
-    }
-}
-
-impl fmt::Display for Opcode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:<5} {}", self.name, self.data)
-    }
-}
+mod opcode;
+use opcode::Opcode;
 
 fn byte_to_push(opcode: &mut Opcode) -> &mut Opcode {
     let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
