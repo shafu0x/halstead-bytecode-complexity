@@ -9,6 +9,7 @@ fn read_file() -> String {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
     let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
+    // remove 0x if it exists
     if &contents[0..2] == "0x" { 
         return contents[2..].to_string();
     } else {
