@@ -44,18 +44,16 @@ fn byte_to_push(opcode: &mut Opcode) -> &mut Opcode {
 fn byte_to_dup(opcode: &mut Opcode) -> &mut Opcode {
     let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
     let dups = dec - 0x7F;
-    opcode.operand_size = dups;
     opcode.name = "DUP".to_owned() + &dups.to_string();
-    opcode.stack_input_size = 1;
+    opcode.stack_input_size = 2;
     opcode
 }
 
 fn byte_to_swap(opcode: &mut Opcode) -> &mut Opcode {
     let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
     let swaps = dec - 0x8F;
-    opcode.operand_size = swaps;
     opcode.name = "SWAP".to_owned() + &swaps.to_string();
-    opcode.stack_input_size = 1;
+    opcode.stack_input_size = 2;
     opcode
 }
 
@@ -345,13 +343,12 @@ fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
     for opcode in opcodes {
         unique_opcodes.insert(&opcode.name);
     }
-    let count = unique_opcodes.len();
-    count
+    unique_opcodes.len()
 }
 
 fn main() {
     let contents = read_file();
-    println!("Bytecode: {}", contents);
+    // println!("Bytecode: {}", contents);
 
     let mut i = 0;
 
