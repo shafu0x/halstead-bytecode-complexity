@@ -1,7 +1,6 @@
-## bytecode-disassembler
+## halstead-bytecode-complexity
 
-Very simple EVM bytecode disassembler in Rust. 
-Educational project to learn Rust.
+Calculate the halstead metrics for EVM bytecode
 
 #### how to run
 
