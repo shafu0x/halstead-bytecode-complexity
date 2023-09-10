@@ -140,11 +140,11 @@ impl Opcode {
             }
             "19" => {
                 opcode.name = "NOT".to_string();
-                opcode.operand_size = 1;
+                opcode.stack_input_size = 1;
             }
             "1A" => {
                 opcode.name = "BYTE".to_string();
-                opcode.operand_size = 1;
+                opcode.stack_input_size = 1;
             }
             "1B" => {
                 opcode.name = "SHL".to_string();
