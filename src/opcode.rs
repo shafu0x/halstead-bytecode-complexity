@@ -1,5 +1,5 @@
-use std::fmt;
 use crate::operand::Operand;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Opcode {

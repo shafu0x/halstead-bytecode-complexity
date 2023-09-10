@@ -5,16 +5,14 @@ pub struct Operand {
 
 impl Operand {
     pub fn new() -> Self {
-        Self { 
+        Self {
             value: String::new(),
         }
     }
 
     pub fn from_bytecode(bytecode: &Vec<char>, start: usize, end: usize) -> Self {
-        Self { 
-            value: bytecode[start..=end]
-                .iter()
-                .collect(),
+        Self {
+            value: bytecode[start..=end].iter().collect(),
         }
     }
 }

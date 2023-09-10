@@ -1,14 +1,14 @@
 mod opcode;
-mod stats;
 mod operand;
+mod stats;
 
 use std::env;
 use std::fs;
 use std::io;
 
 use opcode::Opcode;
-use stats::Stats;
 use operand::Operand;
+use stats::Stats;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 
@@ -74,7 +74,7 @@ fn main() {
 
     while i < bytecode.len() - 1 {
         if opcode.operand_size > 0 {
-            let operand = Operand::from_bytecode(&bytecode, i, i + (opcode.operand_size*2) - 1);
+            let operand = Operand::from_bytecode(&bytecode, i, i + (opcode.operand_size * 2) - 1);
             stats.add_operand(operand.clone());
             opcode.operand = operand;
             i += opcode.operand_size * 2;
