@@ -8,13 +8,17 @@ use opcode::Opcode;
 fn read_file() -> String {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
-    let contents = fs::read_to_string(path).expect("Something went wrong reading the file");
+    let mut contents = fs::read_to_string(path).expect("Something went wrong reading the file");
     // remove 0x if it exists
     if &contents[0..2] == "0x" { 
-        return contents[2..].to_string();
-    } else {
-        return contents.to_string();
-    }
+        contents = contents[2..].to_string();
+    } 
+    // remove metadata
+    let metadata_length = contents[contents.len()-3..contents.len()-1].to_string();
+    let dec = usize::from_str_radix(&metadata_length, 16).unwrap();
+    contents = contents[0..contents.len()-(dec*2)-4].to_string();
+
+    contents
 }
 
 fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
