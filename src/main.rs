@@ -32,15 +32,6 @@ fn read_bytecode() -> String {
     bytecode
 }
 
-fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
-    let mut unique_opcodes = HashSet::new();
-
-    for opcode in opcodes {
-        unique_opcodes.insert(&opcode.name);
-    }
-    unique_opcodes.len()
-}
-
 fn main() {
     let bytecode = read_bytecode();
 
@@ -91,7 +82,11 @@ fn main() {
     }
 
     println!();
-    let unique_opcodes = get_number_of_unique_opcodes(&opcodes);
+    let unique_opcodes = opcodes
+        .iter()
+        .map(|opcode| &opcode.name)
+        .collect::<HashSet<_>>()
+        .len();
 
     let mut unique_operands = HashSet::new();
     for op in operands {
