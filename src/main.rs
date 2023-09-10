@@ -17,7 +17,7 @@ fn strip_metadata(bytecode: &String) -> String {
 }
 
 // read the bytecode from the file
-fn read_bytecode() -> Result<String, io::Error> {
+fn read_bytecode() -> Result<Vec<char>, io::Error> {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
     let mut bytecode = fs::read_to_string(path)?;
@@ -30,19 +30,17 @@ fn read_bytecode() -> Result<String, io::Error> {
         bytecode = strip_metadata(&bytecode);
     }
 
-    Ok(bytecode)
+    Ok(bytecode.chars().collect())
 }
 
 fn main() {
-    let bytecode = read_bytecode().expect("Error reading bytecode");
-
     let mut i = 0;
 
-    let content_chars: Vec<char> = bytecode.chars().collect();
+    let bytecode: Vec<char> = read_bytecode().expect("Error reading bytecode");
 
     let mut first_opcode = String::new();
-    first_opcode.push(content_chars[i]);
-    first_opcode.push(content_chars[i + 1]);
+    first_opcode.push(bytecode[i]);
+    first_opcode.push(bytecode[i + 1]);
     let mut opcode = Opcode::from_byte(&first_opcode);
 
     i += 2;
@@ -53,9 +51,9 @@ fn main() {
     let mut opcodes: Vec<Opcode> = Vec::new();
     let mut unique_operands: HashSet<String> = HashSet::new();
 
-    while i < content_chars.len() - 1 {
+    while i < bytecode.len() - 1 {
         if opcode.operand_size > 0 {
-            let data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
+            let data: String = bytecode[i..=i + (opcode.operand_size * 2) - 1]
                 .iter()
                 .collect();
             unique_operands.insert(data.clone());
@@ -65,8 +63,8 @@ fn main() {
         } else {
             number_of_operations += 1;
             let mut opcode_string = String::new();
-            opcode_string.push(content_chars[i]);
-            opcode_string.push(content_chars[i + 1]);
+            opcode_string.push(bytecode[i]);
+            opcode_string.push(bytecode[i + 1]);
 
             opcode = Opcode::from_byte(&opcode_string);
             number_of_operands += opcode.stack_input_size;
