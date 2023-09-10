@@ -7,7 +7,7 @@ pub struct Opcode {
     pub operand: String,
     pub operand_size: usize, // in bytes
     pub has_operand: bool,
-    pub stack_input_size: usize, 
+    pub stack_input_size: usize,
 }
 
 impl fmt::Display for Opcode {
@@ -60,7 +60,7 @@ impl Opcode {
             "01" => {
                 opcode.name = "ADD".to_string();
                 opcode.stack_input_size = 2;
-            },
+            }
             "02" => {
                 opcode.name = "MUL".to_string();
                 opcode.stack_input_size = 2;
@@ -140,7 +140,7 @@ impl Opcode {
             "19" => {
                 opcode.name = "NOT".to_string();
                 opcode.operand_size = 1;
-            },
+            }
             "1A" => {
                 opcode.name = "BYTE".to_string();
                 opcode.operand_size = 1;
@@ -161,7 +161,7 @@ impl Opcode {
                 opcode.name = "SHA3".to_string();
                 opcode.stack_input_size = 2;
             }
-            "30" => opcode.name = "ADDRESS".to_string(), 
+            "30" => opcode.name = "ADDRESS".to_string(),
             "31" => {
                 opcode.name = "BALANCE".to_string();
                 opcode.stack_input_size = 1;
@@ -322,4 +322,3 @@ impl Opcode {
         opcode
     }
 }
-

@@ -1,33 +1,35 @@
+use std::collections::HashSet;
 use std::env;
 use std::fs;
-use std::collections::HashSet;
 
 mod opcode;
 use opcode::Opcode;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 
-fn rm_metadata(contents: &String) -> String {
-    let metadata_length = contents[contents.len()-3..contents.len()-1].to_string();
-    let dec = usize::from_str_radix(&metadata_length, 16).unwrap();
-    contents[0..contents.len()-(dec*2)-4].to_string()
+// strip the metadata from the bytecode
+fn strip_metadata(bytecode: &String) -> String {
+    // metadata length is given by the last byte
+    let last_byte: String = bytecode[bytecode.len() - 3..bytecode.len() - 1].to_string();
+    let metadata_len = usize::from_str_radix(&last_byte, 16).unwrap();
+    bytecode[0..bytecode.len() - (metadata_len * 2) - 4].to_string()
 }
 
-fn read_file() -> String {
+// read the bytecode from the file
+fn read_bytecode() -> String {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
-    let mut contents = fs::read_to_string(path).expect("Something went wrong reading the file");
+    let mut bytecode = fs::read_to_string(path).expect("Something went wrong reading the file");
     // remove 0x if it exists
-    if &contents[0..2] == "0x" { 
-        contents = contents[2..].to_string();
-    } 
+    if &bytecode[0..2] == "0x" {
+        bytecode = bytecode[2..].to_string();
+    }
     // remove metadata
     if args.iter().any(|arg| arg == METADATA_FLAG) {
-        println!("Removing metadata");
-        contents = rm_metadata(&contents);
+        bytecode = strip_metadata(&bytecode);
     }
 
-    contents
+    bytecode
 }
 
 fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
@@ -40,11 +42,11 @@ fn get_number_of_unique_opcodes(opcodes: &Vec<Opcode>) -> usize {
 }
 
 fn main() {
-    let contents = read_file();
+    let bytecode = read_bytecode();
 
     let mut i = 0;
 
-    let content_chars: Vec<char> = contents.chars().collect();
+    let content_chars: Vec<char> = bytecode.chars().collect();
 
     let mut first_opcode = String::new();
     first_opcode.push(content_chars[i]);
@@ -59,7 +61,7 @@ fn main() {
     let mut opcodes: Vec<Opcode> = Vec::new();
     let mut operands: Vec<String> = Vec::new();
 
-    while i < content_chars.len()-1 {
+    while i < content_chars.len() - 1 {
         if opcode.operand_size > 0 {
             let data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
                 .iter()
@@ -105,7 +107,8 @@ fn main() {
     let volume = length as f64 * (vocabulary as f64).log2();
     println!("Volume:     {:.2}", volume);
 
-    let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands.len() as f64);
+    let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64)
+        / (unique_operands.len() as f64);
     println!("Difficulty: {:.2}", difficulty);
 
     let effort = difficulty * volume;
