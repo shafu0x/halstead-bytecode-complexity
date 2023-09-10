@@ -1,7 +1,6 @@
 mod opcode;
 mod stats;
 
-use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::io;
@@ -36,23 +35,23 @@ fn read_bytecode() -> Result<Vec<char>, io::Error> {
     Ok(bytecode.chars().collect())
 }
 
-fn print_metrics(
-    unique_opcodes: usize,
-    unique_operands: usize,
-    number_of_operations: usize,
-    number_of_operands: usize,
-) {
+fn print_metrics(stats: &Stats) {
+    println!("");
+
+    let unique_opcodes = stats.count_unique_opcodes();
+    let unique_operands = stats.count_unique_operands();
+
     let vocabulary = unique_opcodes + unique_operands;
     println!("Vocabulary: {}", vocabulary);
 
-    let length = number_of_operations + number_of_operands;
+    let length = stats.opcodes.len() + stats.operands.len();
     println!("Length:     {}", length);
 
     let volume = length as f64 * (vocabulary as f64).log2();
     println!("Volume:     {:.2}", volume);
 
     let difficulty =
-        (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands as f64);
+        (unique_opcodes as f64) / 2.0 * (stats.operands.len() as f64) / (unique_operands as f64);
     println!("Difficulty: {:.2}", difficulty);
 
     let effort = difficulty * volume;
@@ -71,14 +70,12 @@ fn main() {
 
     let mut stats = Stats::new(1, opcode.stack_input_size);
 
-    let mut unique_operands: HashSet<String> = HashSet::new();
-
     while i < bytecode.len() - 1 {
         if opcode.operand_size > 0 {
             let data: String = bytecode[i..=i + (opcode.operand_size * 2) - 1]
                 .iter()
                 .collect();
-            unique_operands.insert(data.clone());
+            stats.add_operand(data.clone());
             opcode.operand = data;
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
@@ -103,17 +100,5 @@ fn main() {
         stats.add_opcode(opcode.clone());
     }
 
-    println!();
-    let unique_opcodes = stats.opcodes
-        .iter()
-        .map(|opcode| &opcode.name)
-        .collect::<HashSet<_>>()
-        .len();
-
-    print_metrics(
-        unique_opcodes,
-        unique_operands.len(),
-        stats.opcode_count,
-        stats.operand_count,
-    );
+    print_metrics(&stats);
 }
