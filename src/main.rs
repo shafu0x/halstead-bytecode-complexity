@@ -33,14 +33,35 @@ fn read_bytecode() -> Result<Vec<char>, io::Error> {
     Ok(bytecode.chars().collect())
 }
 
+fn print_metrics(
+    unique_opcodes: usize,
+    unique_operands: usize,
+    number_of_operations: usize,
+    number_of_operands: usize,
+) {
+    let vocabulary = unique_opcodes + unique_operands;
+    println!("Vocabulary: {}", vocabulary);
+
+    let length = number_of_operations + number_of_operands;
+    println!("Length:     {}", length);
+
+    let volume = length as f64 * (vocabulary as f64).log2();
+    println!("Volume:     {:.2}", volume);
+
+    let difficulty =
+        (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands as f64);
+    println!("Difficulty: {:.2}", difficulty);
+
+    let effort = difficulty * volume;
+    println!("Effort:     {:.2}", effort);
+}
+
 fn main() {
     let mut i = 0;
 
     let bytecode: Vec<char> = read_bytecode().expect("Error reading bytecode");
 
-    let mut first_opcode = String::new();
-    first_opcode.push(bytecode[i]);
-    first_opcode.push(bytecode[i + 1]);
+    let first_opcode: String = bytecode[i..i + 2].iter().collect();
     let mut opcode = Opcode::from_byte(&first_opcode);
 
     i += 2;
@@ -87,19 +108,10 @@ fn main() {
         .collect::<HashSet<_>>()
         .len();
 
-    let vocabulary = unique_opcodes + unique_operands.len();
-    println!("Vocabulary: {}", vocabulary);
-
-    let length = number_of_operations + number_of_operands;
-    println!("Length:     {}", length);
-
-    let volume = length as f64 * (vocabulary as f64).log2();
-    println!("Volume:     {:.2}", volume);
-
-    let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64)
-        / (unique_operands.len() as f64);
-    println!("Difficulty: {:.2}", difficulty);
-
-    let effort = difficulty * volume;
-    println!("Effort:     {:.2}", effort);
+    print_metrics(
+        unique_opcodes,
+        unique_operands.len(),
+        number_of_operations,
+        number_of_operands,
+    );
 }
