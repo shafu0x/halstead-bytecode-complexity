@@ -1,9 +1,10 @@
 use crate::opcode::Opcode;
+use crate::operand::Operand;
 use std::collections::HashSet;
 
 pub struct Stats {
     pub opcodes: Vec<Opcode>,
-    pub operands: Vec<String>,
+    pub operands: Vec<Operand>,
     pub opcode_count: usize,
     pub operand_count: usize,
 }
@@ -30,7 +31,7 @@ impl Stats {
         self.opcodes.push(opcode);
     }
 
-    pub fn add_operand(&mut self, operand: String) {
+    pub fn add_operand(&mut self, operand: Operand) {
         self.operands.push(operand);
     }
 
@@ -45,7 +46,7 @@ impl Stats {
     pub fn count_unique_operands(&self) -> usize {
         self.operands
             .iter()
-            .map(|operand| operand)
+            .map(|operand| &operand.value)
             .collect::<HashSet<_>>()
             .len()
     }
