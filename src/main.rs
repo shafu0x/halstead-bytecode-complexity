@@ -51,14 +51,14 @@ fn main() {
     let mut number_of_operands = opcode.stack_input_size;
 
     let mut opcodes: Vec<Opcode> = Vec::new();
-    let mut operands: Vec<String> = Vec::new();
+    let mut unique_operands: HashSet<String> = HashSet::new();
 
     while i < content_chars.len() - 1 {
         if opcode.operand_size > 0 {
             let data: String = content_chars[i..=i + (opcode.operand_size * 2) - 1]
                 .iter()
                 .collect();
-            operands.push(data.clone());
+            unique_operands.insert(data.clone());
             opcode.operand = data;
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
@@ -89,13 +89,7 @@ fn main() {
         .collect::<HashSet<_>>()
         .len();
 
-    let unique_operands = operands
-        .iter()
-        .map(|operand| operand)
-        .collect::<HashSet<_>>()
-        .len();
-
-    let vocabulary = unique_opcodes + unique_operands;
+    let vocabulary = unique_opcodes + unique_operands.len();
     println!("Vocabulary: {}", vocabulary);
 
     let length = number_of_operations + number_of_operands;
@@ -104,8 +98,8 @@ fn main() {
     let volume = length as f64 * (vocabulary as f64).log2();
     println!("Volume:     {:.2}", volume);
 
-    let difficulty =
-        (unique_opcodes as f64) / 2.0 * (number_of_operands as f64) / (unique_operands as f64);
+    let difficulty = (unique_opcodes as f64) / 2.0 * (number_of_operands as f64)
+        / (unique_operands.len() as f64);
     println!("Difficulty: {:.2}", difficulty);
 
     let effort = difficulty * volume;
