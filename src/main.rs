@@ -1,10 +1,13 @@
+mod opcode;
+mod stats;
+
 use std::collections::HashSet;
 use std::env;
 use std::fs;
 use std::io;
 
-mod opcode;
 use opcode::Opcode;
+use stats::Stats;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 
@@ -66,10 +69,8 @@ fn main() {
 
     i += 2;
 
-    let mut number_of_operations = 1;
-    let mut number_of_operands = opcode.stack_input_size;
+    let mut stats = Stats::new(1, opcode.stack_input_size);
 
-    let mut opcodes: Vec<Opcode> = Vec::new();
     let mut unique_operands: HashSet<String> = HashSet::new();
 
     while i < bytecode.len() - 1 {
@@ -82,13 +83,14 @@ fn main() {
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
         } else {
-            number_of_operations += 1;
+            stats.inc_opcode_count();
             let mut opcode_string = String::new();
             opcode_string.push(bytecode[i]);
             opcode_string.push(bytecode[i + 1]);
 
             opcode = Opcode::from_byte(&opcode_string);
-            number_of_operands += opcode.stack_input_size;
+            stats.inc_operand_count(opcode.stack_input_size);
+
             i += 2;
         }
 
@@ -98,11 +100,11 @@ fn main() {
         if !opcode.has_operand {
             println!("{}", opcode);
         }
-        opcodes.push(opcode.clone());
+        stats.add_opcode(opcode.clone());
     }
 
     println!();
-    let unique_opcodes = opcodes
+    let unique_opcodes = stats.opcodes
         .iter()
         .map(|opcode| &opcode.name)
         .collect::<HashSet<_>>()
@@ -111,7 +113,7 @@ fn main() {
     print_metrics(
         unique_opcodes,
         unique_operands.len(),
-        number_of_operations,
-        number_of_operands,
+        stats.opcode_count,
+        stats.operand_count,
     );
 }
