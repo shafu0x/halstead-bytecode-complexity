@@ -5,6 +5,8 @@ use std::collections::HashSet;
 mod opcode;
 use opcode::Opcode;
 
+const METADATA_FLAG: &str = "-rm-metadata";
+
 fn read_file() -> String {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
@@ -14,9 +16,11 @@ fn read_file() -> String {
         contents = contents[2..].to_string();
     } 
     // remove metadata
-    let metadata_length = contents[contents.len()-3..contents.len()-1].to_string();
-    let dec = usize::from_str_radix(&metadata_length, 16).unwrap();
-    contents = contents[0..contents.len()-(dec*2)-4].to_string();
+    if args.iter().any(|arg| arg == METADATA_FLAG) {
+        let metadata_length = contents[contents.len()-3..contents.len()-1].to_string();
+        let dec = usize::from_str_radix(&metadata_length, 16).unwrap();
+        contents = contents[0..contents.len()-(dec*2)-4].to_string();
+    }
 
     contents
 }
