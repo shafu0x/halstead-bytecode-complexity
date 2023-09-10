@@ -1,10 +1,11 @@
 use std::fmt;
+use crate::operand::Operand;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Opcode {
     pub byte: String,
     pub name: String,
-    pub operand: String,
+    pub operand: Operand,
     pub operand_size: usize, // in bytes
     pub has_operand: bool,
     pub stack_input_size: usize,
@@ -12,7 +13,7 @@ pub struct Opcode {
 
 impl fmt::Display for Opcode {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:<5} {}", self.name, self.operand)
+        write!(f, "{:<5} {}", self.name, self.operand.value)
     }
 }
 
@@ -47,7 +48,7 @@ impl Opcode {
             byte,
             name: "NOP".to_string(),
             operand_size: 0,
-            operand: "".to_string(),
+            operand: Operand::new(),
             has_operand: false,
             stack_input_size: 0,
         }

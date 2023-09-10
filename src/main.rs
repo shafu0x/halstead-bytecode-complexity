@@ -74,9 +74,9 @@ fn main() {
 
     while i < bytecode.len() - 1 {
         if opcode.operand_size > 0 {
-            let operand = Operand::new(&bytecode, i, i + (opcode.operand_size*2) - 1);
+            let operand = Operand::from_bytecode(&bytecode, i, i + (opcode.operand_size*2) - 1);
             stats.add_operand(operand.clone());
-            opcode.operand = operand.value;
+            opcode.operand = operand;
             i += opcode.operand_size * 2;
             opcode.operand_size = 0;
         } else {
@@ -91,7 +91,7 @@ fn main() {
             i += 2;
         }
 
-        if opcode.has_operand && opcode.operand != "" {
+        if opcode.has_operand && opcode.operand.value != "" {
             println!("{}", opcode);
         }
         if !opcode.has_operand {
