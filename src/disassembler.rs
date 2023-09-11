@@ -1,7 +1,8 @@
+use std::fs;
+
 use crate::opcode::Opcode;
 use crate::operand::Operand;
 use crate::stats::Stats;
-use std::fs;
 
 pub struct Disassembler {
     pub bytecode: Vec<char>,
@@ -10,8 +11,11 @@ pub struct Disassembler {
     index: usize,
 }
 
-fn read_bytecode(path: &String, remove_metadata: bool) -> Vec<char> {
-    let mut bytecode = fs::read_to_string(path).unwrap();
+fn read_bytecode(path: &String, remove_metadata: bool) -> Result<Vec<char>, String> {
+    let mut bytecode = match fs::read_to_string(path) {
+        Ok(contents) => contents,
+        Err(e) => return Err(format!("Failed to read file: {}", e)),
+    };
 
     // remove 0x if it exists
     if &bytecode[0..2] == "0x" {
@@ -22,7 +26,7 @@ fn read_bytecode(path: &String, remove_metadata: bool) -> Vec<char> {
         bytecode = strip_metadata(&bytecode);
     }
 
-    bytecode.chars().collect()
+    Ok(bytecode.chars().collect())
 }
 
 // strip the metadata from the bytecode
@@ -36,13 +40,28 @@ fn strip_metadata(bytecode: &String) -> String {
 impl Disassembler {
     pub fn new(path: &String, remove_metadata: bool) -> Disassembler {
         Disassembler {
-            bytecode: read_bytecode(path, remove_metadata),
+            bytecode: read_bytecode(path, remove_metadata).expect("Error reading bytecode"),
             index: 0,
             line_number: 0,
             stats: Stats::new(),
         }
     }
 
+    /// This function is responsible for parsing and extracting opcodes
+    /// and operands from the bytecode.
+    ///
+    /// Reads the next opcode from the bytecode, advances the index,
+    /// and returns the opcode as a Result.
+    ///
+    /// # Errors
+    ///
+    /// - If the function encounters the end of the bytecode, it returns
+    ///   an `Err` with an "End of bytecode" message.
+    ///
+    /// # Returns
+    ///
+    /// - If the parsing is successful, it returns an `Ok` variant with
+    ///   the parsed `Opcode`.
     pub fn next_opcode(&mut self) -> Result<Opcode, String> {
         if self.index >= self.bytecode.len() - 1 {
             return Err("End of bytecode".to_string());
