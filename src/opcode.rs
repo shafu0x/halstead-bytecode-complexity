@@ -7,7 +7,6 @@ pub struct Opcode {
     pub name: String,
     pub operand: Operand,
     pub operand_size: usize, // in bytes
-    pub has_operand: bool,
     pub stack_input_size: usize,
 }
 
@@ -24,23 +23,19 @@ impl Opcode {
             name: "NOP".to_string(),
             operand_size: 0,
             operand: Operand::new(),
-            has_operand: false,
             stack_input_size: 0,
         }
     }
 
     fn configure(
         &mut self,
-        name: &str,
-        operations: usize,
+        name: String,
         stack_input_size: usize,
-        operand_size: usize, 
-        has_operand: bool,
+        operand_size: usize,
     ) -> &mut Opcode {
-        self.name = name.to_owned() + &operations.to_string();
+        self.name = name.to_owned();
         self.stack_input_size = stack_input_size;
         self.operand_size = operand_size;
-        self.has_operand = has_operand;
         self
     }
 
@@ -299,14 +294,21 @@ impl Opcode {
             }
             byte => {
                 let byte = usize::from_str_radix(&byte, 16).unwrap();
-                if byte >= 0x5F && byte <= 0x7F {
-                    opcode.configure("PUSH", byte - 0x5F, 0, byte - 0x5F,  true);
-                }
-                if byte >= 0x80 && byte <= 0x8F {
-                    opcode.configure("DUP", byte - 0x7F, 2, 0, false);
-                }
-                if byte >= 0x90 && byte <= 0x9F {
-                    opcode.configure("SWAP", byte - 0x87, 2, 0, false);
+                match byte {
+                    0x5F..=0x7F => {
+                        let operand_size = byte - 0x5F;
+                        let name = format!("PUSH{}", operand_size);
+                        opcode.configure(name, 0, operand_size);
+                    }
+                    0x80..=0x8F => {
+                        let name = format!("DUP{}", byte - 0x7F);
+                        opcode.configure(name, 2, 0);
+                    }
+                    0x90..=0x9F => {
+                        let name = format!("SWAP{}", byte - 0x87);
+                        opcode.configure(name, 2, 0);
+                    }
+                    _ => (),
                 }
             }
         }

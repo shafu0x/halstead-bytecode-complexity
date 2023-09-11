@@ -74,7 +74,7 @@ impl Disassembler {
 
         let mut opcode = Opcode::from_byte(&opcode_string);
 
-        if opcode.has_operand {
+        if opcode.operand_size > 0 {
             let operand = Operand::from_bytecode(
                 &self.bytecode,
                 self.index,
