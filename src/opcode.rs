@@ -17,31 +17,6 @@ impl fmt::Display for Opcode {
     }
 }
 
-fn to_push(opcode: &mut Opcode) -> &mut Opcode {
-    let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
-    let pushes = dec - 0x5F;
-    opcode.operand_size = pushes;
-    opcode.name = "PUSH".to_owned() + &pushes.to_string();
-    opcode.has_operand = true;
-    opcode
-}
-
-fn to_dup(opcode: &mut Opcode) -> &mut Opcode {
-    let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
-    let dups = dec - 0x7F;
-    opcode.name = "DUP".to_owned() + &dups.to_string();
-    opcode.stack_input_size = 2;
-    opcode
-}
-
-fn to_swap(opcode: &mut Opcode) -> &mut Opcode {
-    let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
-    let swaps = dec - 0x8F;
-    opcode.name = "SWAP".to_owned() + &swaps.to_string();
-    opcode.stack_input_size = 2;
-    opcode
-}
-
 impl Opcode {
     pub fn new(byte: String) -> Opcode {
         Opcode {
@@ -52,6 +27,19 @@ impl Opcode {
             has_operand: false,
             stack_input_size: 0,
         }
+    }
+
+    fn configure(
+        &mut self,
+        name: &str,
+        operations: usize,
+        stack_input_size: usize,
+        has_operand: bool,
+    ) -> &mut Opcode {
+        self.name = name.to_owned() + &operations.to_string();
+        self.stack_input_size = stack_input_size;
+        self.has_operand = has_operand;
+        self
     }
 
     pub fn from_byte(byte: &String) -> Opcode {
@@ -307,16 +295,16 @@ impl Opcode {
                 opcode.name = "SELFDESTRUCT".to_string();
                 opcode.stack_input_size = 1;
             }
-            s => {
-                let dec = usize::from_str_radix(&s, 16).unwrap();
-                if dec >= 0x5F && dec <= 0x7F {
-                    to_push(&mut opcode);
+            byte => {
+                let byte = usize::from_str_radix(&byte, 16).unwrap();
+                if byte >= 0x5F && byte <= 0x7F {
+                    opcode.configure("PUSH", byte - 0x5F, 0, true);
                 }
-                if dec >= 0x80 && dec <= 0x8F {
-                    to_dup(&mut opcode);
+                if byte >= 0x80 && byte <= 0x8F {
+                    opcode.configure("DUP", byte - 0x80, 2, false);
                 }
-                if dec >= 0x90 && dec <= 0x9F {
-                    to_swap(&mut opcode);
+                if byte >= 0x90 && byte <= 0x9F {
+                    opcode.configure("SWAP", byte - 0x90, 2, false);
                 }
             }
         }
