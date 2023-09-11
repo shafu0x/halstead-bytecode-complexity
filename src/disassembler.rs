@@ -70,4 +70,8 @@ impl Disassembler {
 
         Ok(opcode)
     }
+
+    pub fn print_stats(&self) {
+        self.stats.print();
+    }
 }

@@ -11,6 +11,12 @@ const METADATA_FLAG: &str = "--rm-metadata";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        eprintln!("Usage: {} <file_path> [--strip-metadata]", args[0]);
+        std::process::exit(1);
+    }
+
     let path = &args[1];
     let strip_metadata = args.contains(&METADATA_FLAG.to_string());
 
@@ -20,5 +26,5 @@ fn main() {
         println!("{}: {}", disassembler.line_number, opcode);
     }
 
-    disassembler.stats.print();
+    disassembler.print_stats();
 }
