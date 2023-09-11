@@ -79,12 +79,6 @@ impl Disassembler {
                 self.index,
                 self.index + (opcode.operand.size * 2) - 1,
             );
-            // let operand = Operand::from_bytecode(
-            //     &self.bytecode,
-            //     self.index,
-            //     self.index + (opcode.operand.size * 2) - 1,
-            // );
-            // opcode.operand = operand;
             self.index += opcode.operand.size * 2;
         }
 

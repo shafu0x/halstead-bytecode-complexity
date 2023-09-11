@@ -1,14 +1,14 @@
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Operand {
     pub value: String,
-    pub size: usize, 
+    pub size: usize,
 }
 
 impl Operand {
     pub fn new(size: usize) -> Self {
         Self {
             value: String::new(),
-            size: size, 
+            size: size,
         }
     }
 
