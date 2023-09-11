@@ -1,16 +1,16 @@
+mod lexer;
 mod opcode;
 mod operand;
 mod stats;
-mod lexer;
 
 use std::env;
 use std::fs;
 use std::io;
 
+use lexer::Lexer;
 use opcode::Opcode;
 use operand::Operand;
 use stats::Stats;
-use lexer::Lexer;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 
@@ -50,43 +50,14 @@ fn main() {
 
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
-    let lexer = Lexer::new(path, args.len() > 2 && &args[2] == METADATA_FLAG);
-    let bytecode = lexer.bytecode;
+    let mut lexer = Lexer::new(path, args.len() > 2 && &args[2] == METADATA_FLAG);
 
-    let first_opcode: String = bytecode[i..i + 2].iter().collect();
-    let mut opcode = Opcode::from_byte(&first_opcode);
-
-    i += 2;
-
-    let mut stats = Stats::new(1, opcode.stack_input_size);
-
-    while i < bytecode.len() - 1 {
-        if opcode.operand_size > 0 {
-            let operand = Operand::from_bytecode(&bytecode, i, i + (opcode.operand_size * 2) - 1);
-            stats.add_operand(operand.clone());
-            opcode.operand = operand;
-            i += opcode.operand_size * 2;
-            opcode.operand_size = 0;
-        } else {
-            stats.inc_opcode_count();
-            let mut opcode_string = String::new();
-            opcode_string.push(bytecode[i]);
-            opcode_string.push(bytecode[i + 1]);
-
-            opcode = Opcode::from_byte(&opcode_string);
-            stats.inc_operand_count(opcode.stack_input_size);
-
-            i += 2;
+    for i in 1..5000 {
+        match lexer.next_opcode() {
+            Ok(opcode) => println!("{}: {}", i, opcode),
+            Err(e) => break,
         }
-
-        if opcode.has_operand && opcode.operand.value != "" {
-            println!("{}", opcode);
-        }
-        if !opcode.has_operand {
-            println!("{}", opcode);
-        }
-        stats.add_opcode(opcode.clone());
     }
 
-    print_metrics(&stats);
+    // print_metrics(&stats);
 }

@@ -1,20 +1,22 @@
+use crate::opcode::Opcode;
+use crate::operand::Operand;
 use std::fs;
-
 
 pub struct Lexer {
     pub bytecode: Vec<char>,
     index: usize,
+    current_opcode: Opcode,
 }
 
-fn read_bytecode(path: &String, with_metadata: bool) -> Vec<char> {
+fn read_bytecode(path: &String, remove_metadata: bool) -> Vec<char> {
     let mut bytecode = fs::read_to_string(path).unwrap();
-    
+
     // remove 0x if it exists
     if &bytecode[0..2] == "0x" {
         bytecode = bytecode[2..].to_string();
     }
     // remove metadata
-    if !with_metadata {
+    if remove_metadata {
         bytecode = strip_metadata(&bytecode);
     }
 
@@ -30,11 +32,36 @@ fn strip_metadata(bytecode: &String) -> String {
 }
 
 impl Lexer {
-    pub fn new(path: &String, with_metadata: bool) -> Lexer {
+    pub fn new(path: &String, remove_metadata: bool) -> Lexer {
         Lexer {
-            bytecode: read_bytecode(path, with_metadata),
-            index: 0, 
+            bytecode: read_bytecode(path, remove_metadata),
+            index: 0,
+            current_opcode: Opcode::new("".to_string()),
         }
     }
 
+    pub fn next_opcode(&mut self) -> Result<Opcode, String> {
+        if self.index >= self.bytecode.len() - 1 {
+            return Err("End of bytecode".to_string());
+        }
+
+        let mut opcode_string = String::new();
+        opcode_string.push(self.bytecode[self.index]);
+        opcode_string.push(self.bytecode[self.index + 1]);
+        self.index += 2;
+
+        let mut opcode = Opcode::from_byte(&opcode_string);
+
+        if opcode.has_operand {
+            let operand = Operand::from_bytecode(
+                &self.bytecode,
+                self.index,
+                self.index + (opcode.operand_size * 2) - 1,
+            );
+            opcode.operand = operand;
+            self.index += opcode.operand_size * 2;
+        }
+
+        Ok(opcode)
+    }
 }
