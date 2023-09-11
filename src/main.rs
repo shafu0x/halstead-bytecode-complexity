@@ -23,7 +23,7 @@ fn main() {
     let mut disassembler = Disassembler::new(path, strip_metadata);
 
     while let Ok(opcode) = disassembler.next_opcode() {
-        println!("{}: {}", disassembler.line_number, opcode);
+        println!("{:>5}: {}", disassembler.line_number, opcode);
     }
 
     disassembler.print_stats();

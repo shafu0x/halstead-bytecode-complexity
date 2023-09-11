@@ -77,7 +77,7 @@ impl Disassembler {
             opcode.operand.set_value(
                 &self.bytecode,
                 self.index,
-                self.index + (opcode.operand.size * 2) - 1,
+                self.index + (opcode.operand.size * 2),
             );
             self.index += opcode.operand.size * 2;
         }
