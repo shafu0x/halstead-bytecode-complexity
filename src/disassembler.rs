@@ -1,7 +1,6 @@
 use std::fs;
 
 use crate::opcode::Opcode;
-use crate::operand::Operand;
 use crate::stats::Stats;
 
 pub struct Disassembler {
@@ -74,14 +73,19 @@ impl Disassembler {
 
         let mut opcode = Opcode::from_byte(&opcode_string);
 
-        if opcode.operand_size > 0 {
-            let operand = Operand::from_bytecode(
+        if opcode.operand.size > 0 {
+            opcode.operand.set_value(
                 &self.bytecode,
                 self.index,
-                self.index + (opcode.operand_size * 2) - 1,
+                self.index + (opcode.operand.size * 2) - 1,
             );
-            opcode.operand = operand;
-            self.index += opcode.operand_size * 2;
+            // let operand = Operand::from_bytecode(
+            //     &self.bytecode,
+            //     self.index,
+            //     self.index + (opcode.operand.size * 2) - 1,
+            // );
+            // opcode.operand = operand;
+            self.index += opcode.operand.size * 2;
         }
 
         self.stats.add_opcode(opcode.clone());
