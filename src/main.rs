@@ -1,6 +1,7 @@
 mod opcode;
 mod operand;
 mod stats;
+mod lexer;
 
 use std::env;
 use std::fs;
@@ -9,6 +10,7 @@ use std::io;
 use opcode::Opcode;
 use operand::Operand;
 use stats::Stats;
+use lexer::Lexer;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 
@@ -18,23 +20,6 @@ fn strip_metadata(bytecode: &String) -> String {
     let last_byte: String = bytecode[bytecode.len() - 3..bytecode.len() - 1].to_string();
     let metadata_len = usize::from_str_radix(&last_byte, 16).unwrap();
     bytecode[0..bytecode.len() - (metadata_len * 2) - 4].to_string()
-}
-
-// read the bytecode from the file
-fn read_bytecode() -> Result<Vec<char>, io::Error> {
-    let args: Vec<String> = env::args().collect();
-    let path = &args[1];
-    let mut bytecode = fs::read_to_string(path)?;
-    // remove 0x if it exists
-    if &bytecode[0..2] == "0x" {
-        bytecode = bytecode[2..].to_string();
-    }
-    // remove metadata
-    if args.len() > 2 && &args[2] == METADATA_FLAG {
-        bytecode = strip_metadata(&bytecode);
-    }
-
-    Ok(bytecode.chars().collect())
 }
 
 fn print_metrics(stats: &Stats) {
@@ -63,7 +48,10 @@ fn print_metrics(stats: &Stats) {
 fn main() {
     let mut i = 0;
 
-    let bytecode: Vec<char> = read_bytecode().expect("Error reading bytecode");
+    let args: Vec<String> = env::args().collect();
+    let path = &args[1];
+    let lexer = Lexer::new(path, args.len() > 2 && &args[2] == METADATA_FLAG);
+    let bytecode = lexer.bytecode;
 
     let first_opcode: String = bytecode[i..i + 2].iter().collect();
     let mut opcode = Opcode::from_byte(&first_opcode);
