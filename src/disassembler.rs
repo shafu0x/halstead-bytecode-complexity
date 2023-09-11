@@ -3,7 +3,7 @@ use crate::operand::Operand;
 use crate::stats::Stats;
 use std::fs;
 
-pub struct Lexer {
+pub struct Disassembler {
     pub bytecode: Vec<char>,
     pub stats: Stats,
     pub line_number: usize,
@@ -33,9 +33,9 @@ fn strip_metadata(bytecode: &String) -> String {
     bytecode[0..bytecode.len() - (metadata_len * 2) - 4].to_string()
 }
 
-impl Lexer {
-    pub fn new(path: &String, remove_metadata: bool) -> Lexer {
-        Lexer {
+impl Disassembler {
+    pub fn new(path: &String, remove_metadata: bool) -> Disassembler {
+        Disassembler {
             bytecode: read_bytecode(path, remove_metadata),
             index: 0,
             line_number: 0,

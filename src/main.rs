@@ -1,22 +1,22 @@
-mod lexer;
+use std::env;
+
+mod disassembler;
 mod opcode;
 mod operand;
 mod stats;
 
-use std::env;
-
-use lexer::Lexer;
+use disassembler::Disassembler;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
-    let mut lexer = Lexer::new(path, args.len() > 2 && &args[2] == METADATA_FLAG);
+    let mut disassembler = Disassembler::new(path, args.len() > 2 && &args[2] == METADATA_FLAG);
 
-    while let Ok(opcode) = lexer.next_opcode() {
-        println!("{}: {}", lexer.line_number, opcode);
+    while let Ok(opcode) = disassembler.next_opcode() {
+        println!("{}: {}", disassembler.line_number, opcode);
     }
 
-    lexer.stats.print();
+    disassembler.stats.print();
 }
