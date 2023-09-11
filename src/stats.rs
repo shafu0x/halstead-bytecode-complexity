@@ -16,15 +16,14 @@ impl Stats {
         self.opcodes.push(opcode);
     }
 
-    pub fn get_opcodes_with_operand(&self) -> Vec<Opcode> {
+    fn count_operands(&self) -> usize {
         self.opcodes
             .iter()
-            .filter(|opcode| opcode.has_operand)
-            .cloned()
-            .collect()
+            .map(|opcode| opcode.stack_input_size)
+            .sum()
     }
 
-    pub fn count_unique_opcodes(&self) -> usize {
+    fn count_unique_opcodes(&self) -> usize {
         self.opcodes
             .iter()
             .map(|opcode| &opcode.name)
@@ -32,9 +31,10 @@ impl Stats {
             .len()
     }
 
-    pub fn count_unique_operands(&self) -> usize {
-        self.get_opcodes_with_operand()
+    fn count_unique_operands(&self) -> usize {
+        self.opcodes
             .iter()
+            .filter(|opcode| opcode.has_operand)
             .map(|opcode| &opcode.operand.value)
             .collect::<HashSet<_>>()
             .len()
@@ -45,12 +45,13 @@ impl Stats {
 
         let unique_opcodes = self.count_unique_opcodes();
         let unique_operands = self.count_unique_operands();
-        let total_operands = self.get_opcodes_with_operand().len();
+        let total_opcodes = self.opcodes.len();
+        let total_operands = self.count_operands();
 
         let vocabulary = unique_opcodes + unique_operands;
         println!("Vocabulary: {}", vocabulary);
 
-        let length = self.opcodes.len() + total_operands;
+        let length = total_opcodes + total_operands;
         println!("Length:     {}", length);
 
         let volume = length as f64 * (vocabulary as f64).log2();
