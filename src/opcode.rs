@@ -7,7 +7,6 @@ pub struct Opcode {
     pub name: String,
     pub operand: Operand,
     pub operand_size: usize, // in bytes
-    pub has_operand: bool,
     pub stack_input_size: usize,
 }
 
@@ -17,31 +16,6 @@ impl fmt::Display for Opcode {
     }
 }
 
-fn to_push(opcode: &mut Opcode) -> &mut Opcode {
-    let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
-    let pushes = dec - 0x5F;
-    opcode.operand_size = pushes;
-    opcode.name = "PUSH".to_owned() + &pushes.to_string();
-    opcode.has_operand = true;
-    opcode
-}
-
-fn to_dup(opcode: &mut Opcode) -> &mut Opcode {
-    let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
-    let dups = dec - 0x7F;
-    opcode.name = "DUP".to_owned() + &dups.to_string();
-    opcode.stack_input_size = 2;
-    opcode
-}
-
-fn to_swap(opcode: &mut Opcode) -> &mut Opcode {
-    let dec = usize::from_str_radix(&opcode.byte, 16).unwrap();
-    let swaps = dec - 0x8F;
-    opcode.name = "SWAP".to_owned() + &swaps.to_string();
-    opcode.stack_input_size = 2;
-    opcode
-}
-
 impl Opcode {
     pub fn new(byte: String) -> Opcode {
         Opcode {
@@ -49,7 +23,6 @@ impl Opcode {
             name: "NOP".to_string(),
             operand_size: 0,
             operand: Operand::new(),
-            has_operand: false,
             stack_input_size: 0,
         }
     }
@@ -307,16 +280,24 @@ impl Opcode {
                 opcode.name = "SELFDESTRUCT".to_string();
                 opcode.stack_input_size = 1;
             }
-            s => {
-                let dec = usize::from_str_radix(&s, 16).unwrap();
-                if dec >= 0x5F && dec <= 0x7F {
-                    to_push(&mut opcode);
-                }
-                if dec >= 0x80 && dec <= 0x8F {
-                    to_dup(&mut opcode);
-                }
-                if dec >= 0x90 && dec <= 0x9F {
-                    to_swap(&mut opcode);
+            byte => {
+                let byte = usize::from_str_radix(&byte, 16).unwrap();
+                match byte {
+                    0x5F..=0x7F => {
+                        let operand_size = byte - 0x5F;
+                        opcode.name = format!("PUSH{}", operand_size);
+                        opcode.operand_size = operand_size;
+                        opcode.stack_input_size = 0;
+                    }
+                    0x80..=0x8F => {
+                        opcode.name = format!("DUP{}", byte - 0x7F);
+                        opcode.stack_input_size = 2;
+                    }
+                    0x90..=0x9F => {
+                        opcode.name = format!("SWAP{}", byte - 0x87);
+                        opcode.stack_input_size = 2;
+                    }
+                    _ => (),
                 }
             }
         }

@@ -34,7 +34,7 @@ impl Stats {
     fn count_unique_operands(&self) -> usize {
         self.opcodes
             .iter()
-            .filter(|opcode| opcode.has_operand)
+            .filter(|opcode| opcode.operand_size > 0)
             .map(|opcode| &opcode.operand.value)
             .collect::<HashSet<_>>()
             .len()
