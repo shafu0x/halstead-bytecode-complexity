@@ -6,7 +6,6 @@ pub struct Opcode {
     pub byte: String,
     pub name: String,
     pub operand: Operand,
-    pub operand_size: usize, // in bytes
     pub stack_input_size: usize,
 }
 
@@ -21,8 +20,7 @@ impl Opcode {
         Opcode {
             byte,
             name: "NOP".to_string(),
-            operand_size: 0,
-            operand: Operand::new(),
+            operand: Operand::new(0),
             stack_input_size: 0,
         }
     }
@@ -286,7 +284,7 @@ impl Opcode {
                     0x5F..=0x7F => {
                         let operand_size = byte - 0x5F;
                         opcode.name = format!("PUSH{}", operand_size);
-                        opcode.operand_size = operand_size;
+                        opcode.operand.size = operand_size;
                         opcode.stack_input_size = 0;
                     }
                     0x80..=0x8F => {
