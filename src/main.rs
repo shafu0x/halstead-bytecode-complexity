@@ -12,7 +12,9 @@ const METADATA_FLAG: &str = "--rm-metadata";
 fn main() {
     let args: Vec<String> = env::args().collect();
     let path = &args[1];
-    let mut disassembler = Disassembler::new(path, args.len() > 2 && &args[2] == METADATA_FLAG);
+    let strip_metadata = args.contains(&METADATA_FLAG.to_string());
+
+    let mut disassembler = Disassembler::new(path, strip_metadata);
 
     while let Ok(opcode) = disassembler.next_opcode() {
         println!("{}: {}", disassembler.line_number, opcode);
