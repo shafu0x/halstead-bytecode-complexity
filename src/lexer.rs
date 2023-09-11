@@ -1,11 +1,13 @@
 use crate::opcode::Opcode;
 use crate::operand::Operand;
+use crate::stats::Stats;
 use std::fs;
 
 pub struct Lexer {
     pub bytecode: Vec<char>,
+    pub stats: Stats,
+    pub line_number: usize,
     index: usize,
-    current_opcode: Opcode,
 }
 
 fn read_bytecode(path: &String, remove_metadata: bool) -> Vec<char> {
@@ -36,7 +38,8 @@ impl Lexer {
         Lexer {
             bytecode: read_bytecode(path, remove_metadata),
             index: 0,
-            current_opcode: Opcode::new("".to_string()),
+            line_number: 0,
+            stats: Stats::new(),
         }
     }
 
@@ -61,6 +64,9 @@ impl Lexer {
             opcode.operand = operand;
             self.index += opcode.operand_size * 2;
         }
+
+        self.stats.add_opcode(opcode.clone());
+        self.line_number += 1;
 
         Ok(opcode)
     }
