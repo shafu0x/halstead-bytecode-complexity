@@ -27,18 +27,6 @@ impl Opcode {
         }
     }
 
-    fn configure(
-        &mut self,
-        name: String,
-        stack_input_size: usize,
-        operand_size: usize,
-    ) -> &mut Opcode {
-        self.name = name.to_owned();
-        self.stack_input_size = stack_input_size;
-        self.operand_size = operand_size;
-        self
-    }
-
     pub fn from_byte(byte: &String) -> Opcode {
         let mut opcode = Self::new(byte.to_string());
         match byte.as_str() {
@@ -297,16 +285,17 @@ impl Opcode {
                 match byte {
                     0x5F..=0x7F => {
                         let operand_size = byte - 0x5F;
-                        let name = format!("PUSH{}", operand_size);
-                        opcode.configure(name, 0, operand_size);
+                        opcode.name = format!("PUSH{}", operand_size);
+                        opcode.operand_size = operand_size;
+                        opcode.stack_input_size = 0;
                     }
                     0x80..=0x8F => {
-                        let name = format!("DUP{}", byte - 0x7F);
-                        opcode.configure(name, 2, 0);
+                        opcode.name = format!("DUP{}", byte - 0x7F);
+                        opcode.stack_input_size = 2;
                     }
                     0x90..=0x9F => {
-                        let name = format!("SWAP{}", byte - 0x87);
-                        opcode.configure(name, 2, 0);
+                        opcode.name = format!("SWAP{}", byte - 0x87);
+                        opcode.stack_input_size = 2;
                     }
                     _ => (),
                 }
