@@ -40,8 +40,6 @@ impl Stats {
     }
 
     pub fn print(&self) {
-        println!("");
-
         let unique_opcodes = self.count_unique_opcodes();
         let unique_operands = self.count_unique_operands();
         let total_opcodes = self.opcodes.len();
@@ -62,5 +60,6 @@ impl Stats {
 
         let effort = difficulty * volume;
         println!("Effort:     {:.2}", effort);
+        println!("");
     }
 }
