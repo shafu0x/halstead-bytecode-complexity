@@ -30,16 +30,18 @@ fn main() {
         Ok(files) => {
             for file in files {
                 let path = file.unwrap().path();
-                let path_str = &path.to_str().unwrap().to_string();
-                println!("{}", path_str);
+                if path.is_file() {
+                    let path_str = &path.to_str().unwrap().to_string();
+                    println!("{}", path_str);
 
-                let mut disassembler = Disassembler::new(path_str, remove_metadata);
-                while let Ok(opcode) = disassembler.next_opcode() {
-                    if verbose {
-                        println!("{:>5}: {}", disassembler.line_number, opcode);
+                    let mut disassembler = Disassembler::new(path_str, remove_metadata);
+                    while let Ok(opcode) = disassembler.next_opcode() {
+                        if verbose {
+                            println!("{:>5}: {}", disassembler.line_number, opcode);
+                        }
                     }
+                    disassembler.print_stats();
                 }
-                disassembler.print_stats();
             }
         }
         Err(e) => {
