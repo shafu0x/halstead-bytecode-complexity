@@ -6,7 +6,7 @@ mod opcode;
 mod operand;
 mod stats;
 
-use disassembler::Disassembler;
+use disassembler::run_disassembler;
 
 const METADATA_FLAG: &str = "--rm-metadata";
 const VERBOSE_FLAG: &str = "--v";
@@ -31,16 +31,7 @@ fn main() {
             for file in files {
                 let path = file.unwrap().path();
                 if path.is_file() {
-                    let path_str = &path.to_str().unwrap().to_string();
-                    println!("{}", path_str);
-
-                    let mut disassembler = Disassembler::new(path_str, remove_metadata);
-                    while let Ok(opcode) = disassembler.next_opcode() {
-                        if verbose {
-                            println!("{:>5}: {}", disassembler.line_number, opcode);
-                        }
-                    }
-                    disassembler.print_stats();
+                    run_disassembler(&path.to_str().unwrap(), remove_metadata, verbose);
                 }
             }
         }

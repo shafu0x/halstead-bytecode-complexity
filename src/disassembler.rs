@@ -92,3 +92,24 @@ impl Disassembler {
         self.stats.print();
     }
 }
+
+/// This function is responsible for running the disassembler on a given
+/// bytecode file.
+///
+/// # Arguments
+///
+/// - `path` - The path to the bytecode file.
+/// - `remove_metadata` - A boolean flag indicating whether to remove the
+///    metadata from the bytecode.
+/// - `verbose` - A boolean flag indicating whether to print the disassembled
+///    bytecode to stdout.
+pub fn run_disassembler(path: &str, remove_metadata: bool, verbose: bool) {
+    println!("{}", path);
+    let mut disassembler = Disassembler::new(&path.to_string(), remove_metadata);
+    while let Ok(opcode) = disassembler.next_opcode() {
+        if verbose {
+            println!("{:>5}: {}", disassembler.line_number, opcode);
+        }
+    }
+    disassembler.print_stats();
+}
